@@ -33,6 +33,7 @@ int main()
     ofstream out;
     int kpCount = 0;
     int readerLine = 0;
+    int lineCountTotal = 0;
     bool writingKeyValue = false;
     bool isValidKeyPair = false;
 
@@ -46,6 +47,7 @@ int main()
 
     //First Iterator, counts number of valid pairs of keys and values.
     while(getline(inp, buff)) {
+
          for(int i = 0; i < buff.length(); i++)
             {
                 buffChar = buff.at(i);
@@ -54,10 +56,11 @@ int main()
                     kpCount++;
                 }
             }
+    lineCountTotal++;
     }
 
     keyPair *kp = new keyPair[kpCount];
-    int curLineState[kpCount];
+    int curLineState[lineCountTotal];
     //reset the readers state and position to the start of the file again.
     inp.clear();
     inp.seekg(0);
@@ -67,16 +70,32 @@ int main()
         for(int i = 0; i < buff.length(); i++)
         {
             buffChar = buff.at(i);
+                /**
+                0 - Regular KeyPair
+                1 - Array Key
+                11 - Array Value
+                12 - Following Array Values after 1st value (to make it easier to figure out where the array starts)
+                2 - Comment
+                **/
                 switch(buffChar) {
                 case ':':
-
+                    curLineState[readerLine] = 0;
+                    continue;
                 case '-':
-                    curLineState[readerLine];
+                    if(curLineState[readerLine - 1] == 0){
+                        curLineState[readerLine - 1] = 1;
+                        curLineState[readerLine] = 11;
+                    }
+
+                    if(curLineState[readerLine - 1] == 11)
+                        curLineState[readerLine] = 12;
+                    continue;
 
                 case '#':
+                    curLineState[readerLine] = 2;
                     continue;
                 default:
-                    cout << "[DEBUG] The program could not recognize the type of line. Line " << i;
+                    break;
                 }
         }
         readerLine++;
