@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1615893138 source:d:\cbprojects\yamlersl\main.cpp
+	<iostream>
+	<fstream>
+
