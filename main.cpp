@@ -24,11 +24,11 @@ class keyPair {
 
 int main()
 {
-    string buff;
-    char buffChar;
-    string inpName = "testcase1.yml";
-    string outName = "testcase1.ysl";
-    string buffKey;
+    string buff; // Line buffer, stores the string of the line currently being read by the file class
+    char buffChar; // Used in for loop to temporarily store the current character in the line being read
+    string inpName = "testcase1.yml"; //name of file to open and read/parse, will be replaced with launch argument on release
+    string outName = inpName + ".ysl"; //name of file to convert and save to, will be replaced with inpName + .ysl
+    string buffKey; //in the final conversion
     ifstream inp;
     ofstream out;
     int kpCount = 0;
