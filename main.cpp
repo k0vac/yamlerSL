@@ -1,5 +1,8 @@
 #include <iostream>
 #include <fstream>
+#define BADYAML 30
+#define INPUTFAIL 10
+#define OUTPUTFAIL 20
 
 using namespace std;
 
@@ -27,15 +30,16 @@ int main()
     string buff; // Line buffer, stores the string of the line currently being read by the file class
     char buffChar; // Used in for loop to temporarily store the current character in the line being read
     string inpName = "testcase1.yml"; //name of file to open and read/parse, will be replaced with launch argument on release
-    string outName = inpName + ".ysl"; //name of file to convert and save to, will be replaced with inpName + .ysl
-    string buffKey; //in the final conversion
+    string outName = inpName + ".ysl"; //name of file to convert and save to
+    string buffKey; //in the final conversion it's gonna be part of the format
+    //linetype
     ifstream inp;
     ofstream out;
     int kpCount = 0;
     int readerLine = 0;
     int lineCountTotal = 0;
     bool writingKeyValue = false;
-    bool isValidKeyPair = false;
+    int curKP = 0;
 
     inp.open(inpName);
     out.open(outName);
@@ -52,7 +56,7 @@ int main()
             {
                 buffChar = buff.at(i);
                 if(buffChar != ':'){
-                }else{
+                } else {
                     kpCount++;
                 }
             }
@@ -73,27 +77,36 @@ int main()
                 /**
                 0 - Regular KeyPair
                 1 - Array Key
-                11 - Array Value
+                11 - First Array Value
                 12 - Following Array Values after 1st value (to make it easier to figure out where the array starts)
+                13 - Last Array Value
                 2 - Comment
                 **/
                 switch(buffChar) {
                 case ':':
-                    curLineState[readerLine] = 0;
-                    continue;
+                    if(curLineState[readerLine - 1] == 12 || curLineState[readerLine - 1] == 11){
+                        curLineState[readerLine - 1] = 13;
+                        curLineState[readerLine] = 0;
+                    } else {
+                        curLineState[readerLine] = 0;
+                    }
+                    break;
                 case '-':
+                    if(curLineState[readerLine] == 0)
+                        return BADYAML;
                     if(curLineState[readerLine - 1] == 0){
                         curLineState[readerLine - 1] = 1;
                         curLineState[readerLine] = 11;
+                        break;
                     }
 
                     if(curLineState[readerLine - 1] == 11)
                         curLineState[readerLine] = 12;
-                    continue;
+                    break;
 
                 case '#':
                     curLineState[readerLine] = 2;
-                    continue;
+                    break;
                 default:
                     break;
                 }
@@ -104,22 +117,38 @@ int main()
     inp.clear();
     inp.seekg(0);
 
-
     while(getline(inp, buff)) {
         buffKey = "";
-        for(int i = 0; i < buff.length(); i++)
-        {
-            buffChar = buff.at(i);
-            cout << buffChar;
-            if(!writingKeyValue){
-                if(buffChar != ':')
-                buffKey += buffChar;
-                else {
-                    writingKeyValue = true;
-                    }
-            } else {
+        writingKeyValue = false;
+            switch(curLineState[i]){
+            case 0:
 
-            }
+
+                for(int i = 0; i < buff.length(); i++)
+                {
+                    buffChar = buff.at(i);
+                    if(!writingKeyValue){
+                        if(buffChar != ':')
+                        buffKey += buffChar;
+                        else {
+                            writingKeyValue = true;
+                            buffKey
+
+                            }
+                    } else {
+
+                    }
+                }
+
+            curKP++;
+            break;
+            case 1:
+
+            case 2:
+
+            case 11:
+
+            case 12:
         }
         cout << buffKey << endl;
         out << buffKey << endl;
@@ -127,3 +156,15 @@ int main()
     }
     return 0;
 }
+
+
+
+/**
+
+Error Codes:
+
+10 - Can't access input file / Input File does not exist
+20 - Can't write output
+30 - Bad YAML Formatting
+
+**/
