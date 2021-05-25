@@ -1,0 +1,10 @@
+variable1:key1
+variable2:"testwithstring"
+arrayvariable3:
+    -arrkey1
+    -arrkey2
+    -arrkey3
+# comment parsing test
+singlearrayvariable4:
+    -testingkey1
+    -testingkey2
